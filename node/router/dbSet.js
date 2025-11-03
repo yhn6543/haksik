@@ -49,7 +49,8 @@ async function searchMenu(data){
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36',
             'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        }
+        },
+        timeout: 10000
     });
 
 
@@ -84,20 +85,17 @@ async function searchMenu(data){
 
 
     const tr = $("#detailForm tbody tr")
-    // console.log(tr.length)
-    // console.log(tr.text().trim().replace(/\s+/g, ' '));
-    console.log("\n" + "--------------------------------------------------------" + "\n")
+
+    // console.log("\n" + "--------------------------------------------------------" + "\n")
     
     const cat = {}
     
     const date = $(".date .txt_p").text().slice(0, 10);
     const [YEAR, MONTH, DATE] = date.split("-")
-
-    console.log(YEAR, MONTH, DATE)
+    // console.log(YEAR, MONTH, DATE)
 
 
     tr.each((index, element) => {
-        // const $tds = $(element).find("td div"); // 수정
         const $tds = $(element).find("td");
         
         //////////////////////////////////////////// 구분 ////////////////////////////////////////////
@@ -105,18 +103,8 @@ async function searchMenu(data){
         const text = ($ths.html()).replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, '').trim()
         /////////////////////////////////////////////////////////////////////////////////////////////
 
-        // cat.push(($ths.html())
-        //                 .replace(/<br\s*\/?>/gi, '\n')
-        //                 .replace(/<[^>]*>?/gm, '')
-        //                 .trim() + "\n")
-        cat[text] = []
 
-        // console.log("index = ", index)
-        // console.log(($ths.html())
-        //                 .replace(/<br\s*\/?>/gi, '\n')
-        //                 .replace(/<[^>]*>?/gm, '')
-        //                 .trim() + "\n")
-        // console.log(text)
+        cat[text] = []
 
 
 
@@ -127,19 +115,19 @@ async function searchMenu(data){
             // date.toLocaleDateString('ko-KR')
             // console.log(date.toString())
             date.setDate(date.getDate()+index)
-            console.log(date.toString())
+            // console.log(date.toString())
 
             $divs.each((_, element) => {
                 const $div = $(element)
                 const menu = { "date": date.toISOString().slice(0, 10) }
                 // console.log($div.text().trim().replace(/\s+/g, ' '))
-                console.log("\n")
+                // console.log("\n")
     
                 const box = $div.find(".fm_tit_p.mgt15")
                 
                 if(box.length){
-                    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                    console.log("option - ", box.text())
+                    // console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+                    // console.log("option - ", box.text())
                     menu["opt"] = box.text()
                 }
                 
@@ -156,15 +144,15 @@ async function searchMenu(data){
                 // console.log($td.length)
                 
                 if(div == 0){
-                    console.log("menu - " + "###")
+                    // console.log("menu - " + "###")
                     menu["menu"] = "###"
                 }
                 else{
-                    console.log("menu - " + div)
+                    // console.log("menu - " + div)
                     menu["menu"] = div
                 }
                 
-                console.log("\n")
+                // console.log("\n")
     
     
     
@@ -175,62 +163,11 @@ async function searchMenu(data){
         })
 
 
-
-
-
-
-
-        
-        /*      수정
-        $tds.each((index, element) => {
-            const $td = $(element)
-            const menu = { "index": index }
-            // console.log($td.text().trim().replace(/\s+/g, ' '))
-
-            const box = $td.find(".fm_tit_p.mgt15")
-            
-            if(box.length){
-                // console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                console.log("option - ", box.text())
-                menu["opt"] = box.text()
-            }
-            
-            
-            // console.log(box.text().length)
-
-
-            const div = $td.text()
-                            .trim()
-                            .replace(/\s+/g, ' ')
-                            .replace(/\)/g, ')\n')
-                            .slice(box.text().length)
-                            .trim()
-            // console.log($td.length)
-            
-            if(div == 0){
-                console.log("menu - " + "###")
-                menu["menu"] = "###"
-            }
-            else{
-                console.log("menu - " + div)
-                menu["menu"] = div
-            }
-            
-            console.log("\n")
-
-
-
-
-
-            cat[text].push(menu)
-        })*/
-
-
-        console.log("=======================================================")
+        // console.log("=======================================================")
     })
 
     console.log(cat)
-    console.log("시작 날짜", date)
+    // console.log("시작 날짜", date)
 }
 
 
@@ -240,7 +177,7 @@ cron.schedule("0 0 20 * * 5", () => {	// 매주 금요일 20시 00분 00초에 �
     
     // formData.forEach((data) => { searchMenu(data) })
     // console.log(formData[0])
-    searchMenu(formData[1])
+    // searchMenu(formData[1])
     
     console.log("--------------------------------\n\n\n\n")
 }, {
@@ -248,8 +185,13 @@ cron.schedule("0 0 20 * * 5", () => {	// 매주 금요일 20시 00분 00초에 �
     timezone: "Asia/Seoul"
 })
 
-searchMenu(formData[1])
-
+// searchMenu(formData[1])
+try{
+    formData.forEach((data) => { searchMenu(data) })
+}
+catch(err){
+    console.log(err)
+}
 
 // function formDataSet(){
 //     return axios({
