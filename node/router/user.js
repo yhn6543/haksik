@@ -1,30 +1,48 @@
 const express = require('express');
 const router = express.Router();
+const session = require("express-session")
 
 
-const mysql = require("mysql2");
-const bcrypt = require('bcrypt');
-const { promisify } = require('util');
+// const mysql = require("mysql2");
+// const bcrypt = require('bcrypt');
+
+const { app } = require("./server")
+app.use(session({
+    secret: "Key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: ({
+        maxAge: 1000* 60 * 60,
+        httpOnly: true
+    })
+}))
+app.use("/user", router)
+
+const verifyEmail = require("./verify-email")
+router.use("/verify-email", verifyEmail)
 
 
-const db = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'dev',
-  password : '1234',
-  database : 'menu'
-});
-
-db.connect();
-
-const dbAllAsync = promisify(db.all).bind(db);
-const dbGetAsync = promisify(db.get).bind(db);
 
 
-db.query("SELECT * FROM user;", (err, res) => {
-    console.log(res);
+const userModel = require("../models/userModel")
+userModel.test()
+
+
+
+
+router.get('/login', (req,res)=>{
+    console.log("/login")
+    if (req.session?.username) res.redirect('/');
+    else res.render('login');
+})
+router.post('/login', (req,res)=>{
+    userModel.dbUserLogin(req, res);
 })
 
-db.end();
+
+
+
+
 
 
 
@@ -32,10 +50,27 @@ router.get('/join', (req, res)=>{
     return res.render('join');
 })
 
-router.get('/login', (req,res)=>{
-    if (req.session.username) res.redirect('/');
-    else res.render('login');
+router.post('/join', (req, res) => {
+    // console.log(req.body)
+
+    userModel.dbUserJoin(req.body);
+
+    res.render('join');
 })
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 
 router.post('/login', async (req,res)=>{
     const id = req.body.id;
@@ -66,22 +101,26 @@ router.post('/logout', (req, res)=>{
 router.post('/', upload.single('profile'), async (req, res)=>{                            // 회원가입
     const id = req.body.id;
     const pw = bcrypt.hashSync(req.body.pw, 10);
-    const filename = req.file?.filename ? req.file?.filename : "default.png";
-    const timestamp = (new Date()).getTime();
 
-    const regExp = /[ \{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi;                   // 특수문자 체크
-    
-    if(regExp.test(id)){
-        return res.send('<script> alert("특수문자 사용 불가능"); location.href="/join"; </script>');
-    }
+    console.log(id, pw)
 
-    const unique = (await dbGetAsync("SELECT count(*) FROM user WHERE id=?", [id]))['count(*)'];            // 아이디 중복 체크
-    if(unique) return res.send('<script> alert("사용 중인 아이디"); location.href="/join"; </script>');
+    // const filename = req.file?.filename ? req.file?.filename : "default.png";
+    // const timestamp = (new Date()).getTime();
+
+    // const regExp = /[ \{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi;                   // 특수문자 체크
+    
+    // if(regExp.test(id)){
+    //     return res.send('<script> alert("특수문자 사용 불가능"); location.href="/join"; </script>');
+        
+    // }
+
+    // const unique = (await dbGetAsync("SELECT count(*) FROM user WHERE id=?", [id]))['count(*)'];            // 아이디 중복 체크
+    // if(unique) return res.send('<script> alert("사용 중인 아이디"); location.href="/join"; </script>');
     
 
-    db.run('INSERT INTO user (id, pw, profile, timestamp) VALUES (?, ?, ?, ?)', [id, pw, filename, timestamp]);
+    // db.run('INSERT INTO user (id, pw, profile, timestamp) VALUES (?, ?, ?, ?)', [id, pw, filename, timestamp]);
     
-    res.send('<script> alert("회원 등록이 완료되었습니다."); location.href="/"; </script>');
+    // res.send('<script> alert("회원 등록이 완료되었습니다."); location.href="/"; </script>');
 })
 
 
@@ -104,7 +143,7 @@ router.get(`/page/:userId`, async (req, res)=>{
 
 
 
-
+*/
 
 
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>이메일 인증 - 받은 코드 인증</h1>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <h2>
+            <%= email %>
+        </h2>
+        <form action="/user/verify-email/verify-code" method="post">
+            <input type="hidden" name="email" value="<%= email %>"><br>
+            <input type="text" name="code"><br>
+            <button type="submit">인증하기</button>
+        </form>
+    </body>
+    </html>
+</body>
+</html>
