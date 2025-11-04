@@ -4,43 +4,14 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const cron = require("node-cron");
 
-const { CookieJar } = require('tough-cookie');
-const { wrapper } = require('axios-cookiejar-support');
-const querystring = require('querystring'); 
-
 const { app } = require("./server")
 app.use("/menu", router)
 
-// app.set("view engine", "ejs");
-// app.set("views", "./views");
-
-
-
-const jar = new CookieJar();
-const client = wrapper(axios.create({ 
-    jar,
-    withCredentials: true 
-}));
-
-
-
-
-const url = '/' + "sysId" + '/ad/fm/foodmenu/selectFoodMenuView.do?mi=' + "mi";
 
 app.get("/", (req, res)=>{
     res.render("index")
 })
 
-class Meal{
-    constructor(dayOfWeek){
-        this.dayOfWeek = dayOfWeek;
-    }
-}
-
-const day = ["월", "화", "수", "목", "금", "토", "일"]
-const BASE_URL = 'https://www.gnu.ac.kr';
-const INITIAL_FORM_URL = "https://www.gnu.ac.kr/main/ad/fm/foodmenu/selectFoodMenuView.do?mi=1341"
-const SUBMIT_ACTION_URL = BASE_URL + '/main/ad/fm/foodmenu/selectFoodMenuView.do'; 
 
 
 router.get("/main", (req, res)=>{

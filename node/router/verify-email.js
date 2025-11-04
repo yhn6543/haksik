@@ -48,7 +48,7 @@ router.post('/send-verification', async (req, res) => {
     try {
         // 6자리 인증 코드 생성
         const verificationCode = generateVerificationCode();
-        
+        console.log("인증 코드 - ", verificationCode);
         // 인증 코드 저장 (5분 유효)
         verificationCodes[email] = {
             code: verificationCode,
@@ -70,6 +70,7 @@ router.post('/send-verification', async (req, res) => {
         
         // 이메일 전송
         await transporter.sendMail(mailOptions);
+        
 
         res.render("verify-code", { email })
 
@@ -126,6 +127,7 @@ router.post('/verify-code', (req, res) => {
     }
     
     // 인증 성공
+    userModel.dbUserVerifyEmail(req, res);  //db에 유저 인증 상태 변경
     delete verificationCodes[email];
     res.json({ 
         success: true, 
