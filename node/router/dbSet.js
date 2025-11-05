@@ -89,81 +89,79 @@ async function searchMenu(data){
         //////////////////////////////////////////// 구분 ////////////////////////////////////////////
         const $ths = $(element).find("th");
         const text = ($ths.html()).replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, '').trim()
+        cat[text] = []
         /////////////////////////////////////////////////////////////////////////////////////////////
 
 
-        cat[text] = []
-
-
-
         $tds.each((index, element) => {
-            const $divs = $(element).find("div")
-            const date = new Date(2025, 10, 11, 12, 0, 0);
-            date.setDate(date.getDate()+index)
-            // console.log(date.toString())
+            const $divs = $(element).find("div");
 
             $divs.each((_, element) => {
-                const $div = $(element)
+                const $ps = $(element).find("p")
+                const date = new Date(2025, 10, 3, 12, 0, 0);
+                date.setDate(date.getDate()+index)
+                
                 const menu = { "date": date.toISOString().slice(0, 10) }
-                // console.log($div.text().trim().replace(/\s+/g, ' '))
-                // console.log("\n")
     
-                const box = $div.find(".fm_tit_p.mgt15")
-                
-                if(box.length){
-                    // console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                    // console.log("option - ", box.text())
-                    menu["opt"] = box.text()
-                }
-                
-                
-                // console.log(box.text().length)
-    
-                const html = $div.html().trim()
-                                .replace(/\s+/g, ' ')
-                                .replace(/\)/g, ')\n')
-                                .slice(box.text().length)
-                                .trim()
-                // console.log(html)
-                // console.log("\n");
-
-
-    
-                const div = $div.text()
-                                .trim()
-                                .replace(/\s+/g, ' ')
-                                .replace(/\)/g, ')\n')
-                                .slice(box.text().length)
-                                .trim()
-                // console.log($td.length)
-                
-
-
-
-                if(div == 0){
-                    // console.log("menu - " + "###")
-                    menu["menu"] = ""
-                }
-                else{
-                    console.log("menu - " + div)
-                    menu["menu"] = div
-                }
-                
-                // console.log("\n")
-    
-    
-    
-    
-    
-                cat[text].push(menu)
+                $ps.each((_, element) => {
+                    const $p = $(element)
+                    // console.log($p.text().trim().replace(/\s+/g, ' '))
+                    // console.log("\n")
+                    const html = $p.html().trim()
+                                    .replace(/\s+/g, ' ')
+                                    .replace(/\)/g, ')\n')
+                                    .trim()
+                    // console.log(html);
+                    // console.log("\n");
+                    p = html.replace(/<br>/g, "\n");
+                    // console.log($p.attr("class"))
+                    // console.log($p.html().trim());
+                    
+                    if($p.attr("class")){
+                        // console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+                        // console.log("option - ", p)
+                        menu["opt"] = p
+                    }
+                    else{
+                        // console.log($p.toString())
+                        // console.log($p.html().trim().replace(/<br>/g, "\n"))
+                        const t = $p.html().trim().replace(/<br>/g, "\n")
+                        // console.log(t)
+                        const te = $("<div>").html(t).text().trim();
+                        // console.log(te);
+                        // console.log("menu - ", p)
+            
+                        // const div = $p.text()
+                        //                 .trim()
+                        //                 .replace(/\s+/g, ' ')
+                        //                 .replace(/\)/g, ')\n')
+                        //                 .slice(box.text().length)
+                        //                 .trim()
+                        // console.log($td.length)
+                        
+                        
+                        if(p.slice(-1) == "\n"){
+                            p = p.slice(0, p.length-1);
+                        }
+        
+                        if(p == 0){
+                            // console.log("menu - " + "###")
+                            menu["menu"] = ""
+                        }
+                        else{
+                            //console.log("menu - " + div)
+                            menu["menu"] = te
+                        }
+                        
+                        
+                        cat[text].push(menu)
+                    }
+                })
             })
         })
-
-
-        // console.log("=======================================================")
     })
 
-    // console.log(cat)
+    console.log(cat)
     // console.log("시작 날짜", date)
 }
 
@@ -184,7 +182,7 @@ cron.schedule("0 0 20 * * 5", () => {	// 매주 금요일 20시 00분 00초에 �
 })
 
 
-
+searchMenu(formData[2])
 
 // searchMenu(formData[1])
 
@@ -204,7 +202,7 @@ async function searchMenuWithDelay() {
     }
 }
 
-searchMenuWithDelay()
+// searchMenuWithDelay()
 
 
 
