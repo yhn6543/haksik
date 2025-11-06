@@ -162,6 +162,7 @@ async function searchMenu(data){
     })
 
     console.log(cat)
+    
     // console.log("시작 날짜", date)
 }
 
@@ -203,6 +204,8 @@ async function searchMenuWithDelay() {
 }
 
 // searchMenuWithDelay()
+
+
 
 
 
