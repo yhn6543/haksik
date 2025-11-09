@@ -14,6 +14,8 @@ const client = wrapper(axios.create({
     withCredentials: true 
 }));
 
+const menuModel = require("../models/menuModel");
+
 
 const formData = [
     {mi: "1341", restSeq: "4", schSysId: "main"},   // 가좌 - 교직원식당
@@ -69,7 +71,7 @@ async function searchMenu(data){
 
     
     const $ = cheerio.load(submitResponse.data);
-    const menuTableRows = $('.tbl_list tbody tr'); 
+    const menuTableRows = $('.tbl_list tbody tr');
 
 
     const tr = $("#detailForm tbody tr")
@@ -81,87 +83,106 @@ async function searchMenu(data){
     const date = $(".date .txt_p").text().slice(0, 10);
     const [YEAR, MONTH, DATE] = date.split("-")
     // console.log(YEAR, MONTH, DATE)
-
+    
 
     tr.each((index, element) => {
         const $tds = $(element).find("td");
+        let DB = 1;
         
         //////////////////////////////////////////// 구분 ////////////////////////////////////////////
         const $ths = $(element).find("th");
         const text = ($ths.html()).replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, '').trim()
         cat[text] = []
+        
+        if(text.includes("고정메뉴") || text.includes("더진국"))
+            DB = 0;
         /////////////////////////////////////////////////////////////////////////////////////////////
 
-
-        $tds.each((index, element) => {
-            const $divs = $(element).find("div");
-
-            $divs.each((_, element) => {
-                const $ps = $(element).find("p")
-                const date = new Date(2025, 10, 3, 12, 0, 0);
-                date.setDate(date.getDate()+index)
-                
-                const menu = { "date": date.toISOString().slice(0, 10) }
+        if(text != "알레르기정보"){
+            $tds.each((index, element) => {
+                const $divs = $(element).find("div");
     
-                $ps.each((_, element) => {
-                    const $p = $(element)
-                    // console.log($p.text().trim().replace(/\s+/g, ' '))
-                    // console.log("\n")
-                    const html = $p.html().trim()
-                                    .replace(/\s+/g, ' ')
-                                    .replace(/\)/g, ')\n')
-                                    .trim()
-                    // console.log(html);
-                    // console.log("\n");
-                    p = html.replace(/<br>/g, "\n");
-                    // console.log($p.attr("class"))
-                    // console.log($p.html().trim());
+                $divs.each((_, element) => {
+                    const $ps = $(element).find("p")
+                    const date = new Date(YEAR, MONTH-1, DATE, 12, 0, 0);
+                    date.setDate(date.getDate()+index)
                     
-                    if($p.attr("class")){
-                        // console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-                        // console.log("option - ", p)
-                        menu["opt"] = p
-                    }
-                    else{
-                        // console.log($p.toString())
-                        // console.log($p.html().trim().replace(/<br>/g, "\n"))
-                        const t = $p.html().trim().replace(/<br>/g, "\n")
-                        // console.log(t)
-                        const te = $("<div>").html(t).text().trim();
-                        // console.log(te);
-                        // console.log("menu - ", p)
-            
-                        // const div = $p.text()
-                        //                 .trim()
-                        //                 .replace(/\s+/g, ' ')
-                        //                 .replace(/\)/g, ')\n')
-                        //                 .slice(box.text().length)
-                        //                 .trim()
-                        // console.log($td.length)
+                    const menu = { "date": date.toISOString().slice(0, 10) }
+    
+    
+                    $ps.each((_, element) => {
+                        const $p = $(element)
+                        // console.log($p.text().trim().replace(/\s+/g, ' '))
+                        // console.log("\n")
+                        const html = $p.html().trim()
+                                        .replace(/\s+/g, ' ')
+                                        .replace(/\)/g, ')\n')
+                                        .trim()
+                        // console.log(html+"\n");
+                        // console.log("\n");
+                        p = html.replace(/<br>/g, "\n");
+                        // console.log($p.attr("class"))
+                        // console.log($p.html().trim());
                         
-                        
-                        if(p.slice(-1) == "\n"){
-                            p = p.slice(0, p.length-1);
-                        }
-        
-                        if(p == 0){
-                            // console.log("menu - " + "###")
-                            menu["menu"] = ""
+                        if($p.attr("class")){
+                            // console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+                            // console.log("option - ", p)
+                            menu["opt"] = p
                         }
                         else{
-                            //console.log("menu - " + div)
-                            menu["menu"] = te
+                            // console.log($p.toString())
+                            // console.log($p.html().trim().replace(/<br>/g, "\n"))
+                            const t = $p.html().trim().replace(/<br>/g, "\n")
+                            // console.log(t)
+                            let te = $("<div>").html(t).text().trim();
+                            // console.log(te);
+                            // console.log("menu - ", p)
+                
+                            // const div = $p.text()
+                            //                 .trim()
+                            //                 .replace(/\s+/g, ' ')
+                            //                 .replace(/\)/g, ')\n')
+                            //                 .slice(box.text().length)
+                            //                 .trim()
+                            // console.log($td.length)
+                            
+                            
+                            if(p.slice(-1) == "\n"){
+                                p = p.slice(0, p.length-1);
+                            }
+            
+                            if(p == 0){
+                                // console.log("menu - " + "###")
+                                menu["menu"] = ""
+                            }
+                            else{
+                                // console.log("menu - " + te)
+                                // console.log("text - ", text, "menu - ", menu, "DB - ", DB);
+                                if(te.includes("(천원의 아침밥)")){
+                                    te = te.replace("(천원의 아침밥)\n", "");
+                                    menu["opt"] = "천원의 아침밥";
+                                }
+                                  
+                                menu["menu"] = te
+                                // console.log(te);
+                                if(DB)
+                                    menuModel.dbMenuSet(te, data.restSeq, data.mi);
+                            }
+                            
+                            // console.log(text);
+                            cat[text].push(menu)
+                            menuModel.dbMealSet(menu, data.restSeq, data.mi, text);
+                            // console.log(menu)
                         }
-                        
-                        
-                        cat[text].push(menu)
-                    }
+                    })
                 })
+    
+                // console.log(cat[text])
             })
-        })
+        }
     })
 
-    console.log(cat)
+    // console.log(cat)
     
     // console.log("시작 날짜", date)
 }
@@ -182,15 +203,15 @@ cron.schedule("0 0 20 * * 5", () => {	// 매주 금요일 20시 00분 00초에 �
     timezone: "Asia/Seoul"
 })
 
+// searchMenuWithDelay();
+// searchMenu(formData[4])
 
-searchMenu(formData[2])
-
-// searchMenu(formData[1])
+// searchMenu(formData[3])
 
 
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
-// 딜레이 없이 하면 가끔 에러
+// 딜레이를 줘서 과부하 방지
 async function searchMenuWithDelay() {
     try{
         for(data of formData){

@@ -30,30 +30,16 @@ userModel.test()
 
 
 
-router.get('/login', (req,res)=>{
-    console.log("/login")
+router.get('/signIn', (req,res)=>{
+    console.log("/signIn")
     if (req.session?.username) res.redirect('/');
-    else res.render('login');
-})
-router.post('/login', (req,res)=>{
-    userModel.dbUserLogin(req, res);
+    else res.render('signIn');
 })
 
-
-
-
-
-
-
-
-router.get('/join', (req, res)=>{
-    return res.render('join');
-})
-
-router.post('/join', (req, res) => {
-    userModel.dbUserJoin(req, res);
-
-    res.render('join');
+router.post('/signIn', async (req,res)=>{
+    const result = await userModel.dbUserSignIn(req, res);
+    // console.log(result)
+    return res.send(result);
 })
 
 
@@ -62,7 +48,24 @@ router.post('/join', (req, res) => {
 
 
 
-router.get('/logout', (req, res) => {
+
+router.get('/signUp', (req, res)=>{
+    return res.render('signUp');
+})
+
+router.post('/signUp', async (req, res) => {
+    const result = await userModel.dbUserSignUp(req, res);
+    console.log(result)
+    return res.send(result)
+})
+
+
+
+
+
+
+
+router.get('/signOut', (req, res) => {
     delete req.session.user
     res.redirect('/')
 })

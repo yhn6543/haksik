@@ -7,6 +7,7 @@ const cron = require("node-cron");
 const { app } = require("./server")
 app.use("/menu", router)
 
+const menuModel = require("../models/menuModel");
 
 app.get("/", (req, res)=>{
     res.render("index")
@@ -14,26 +15,35 @@ app.get("/", (req, res)=>{
 
 
 
-router.get("/main", (req, res)=>{
+router.get("/main", async(req, res)=>{
     console.log("가좌 메뉴")
     const mi = "1341"
     const schSysId = "main"
+    const date = new Date().toISOString().slice(0, 10);
 
-    res.send("가좌")
+    const meal = await menuModel.dbGetMeal(mi)
+    // console.log(meal)
+    return res.send(meal)
 })
 
-app.get("/cdorm", (req, res)=>{
+app.get("/cdorm", async(req, res)=>{
     const mi = "1342"
     const schSysId = "cdorm"
+    const date = new Date().toISOString().slice(0, 10);
 
-    res.send("칠암")
+    const meal = await menuModel.dbGetMeal(mi)
+    // console.log(meal)
+    return res.send(meal)
 })
 
-app.get("/tdorm", (req, res)=>{
+app.get("/tdorm", async(req, res)=>{
     const mi = "1343"
     const schSysId = "tdorm"
+    const date = new Date().toISOString().slice(0, 10);
 
-    res.send("통영")
+    const meal = await menuModel.dbGetMeal(mi)
+    // console.log(meal)
+    return res.send(meal)
 })
 
 

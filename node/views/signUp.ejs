@@ -7,14 +7,20 @@
 </head>
 <body>
     <h1>
-        로그인 창
+        회원가입 창
     </h1>
-    <form action="/user/login" method="post">
+    <form action="/user/signUp" method="post">
         <input type="text" name="id" id="" placeholder="id">
         <br>
         <input type="password" name="pw" id="" placeholder="pw">
         <br>
-        <button type="submit">로그인</button>
+        <input type="email" name="email" placeholder="email">
+        <br>
+        <button type="submit">인증</button>
+        <br>
+        <input type="text" name="code" placeholder="인증코드">
+        <br>
+
     </form>
 </body>
 </html>

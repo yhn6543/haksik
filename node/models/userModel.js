@@ -7,13 +7,12 @@ console.log("===== userModel =====");
 
 const { app } = require("../router/server")
 const db = dbConnect();
-console.log("db연결 성공");
 
 
 const PWKEY = 10;
 
 
-async function dbUserJoin(req, res) {
+async function dbUserSignUp(req, res) {
     console.log("joinQueryData----------")
     console.log(req.body);
     console.log("-----------------------")
@@ -27,15 +26,16 @@ async function dbUserJoin(req, res) {
             return cnt[0]["count(id)"];
         } catch(err){
             console.log("에러발생 - ", err)
-            return 1;
+            return "dbUserSignUp Error - " + err
         }
     })();
 
-    // console.log("unique = ", unique)
     if(unique > 0){
         console.log("아이디 중복으로 return")
-        return;
+        return "아이디 중복으로 return"
     }
+
+
     console.log("중복되지 않음")
     console.log("비밀번호 - ", bcrypt.hashSync(req.body.pw, PWKEY));
 
@@ -43,17 +43,20 @@ async function dbUserJoin(req, res) {
         const [rows, fields] = await db.execute("INSERT INTO `menu`.`user` (`id`, `pw`, `verify`, `date`) VALUES (?, ?, ?, NOW());", 
             [req.body.id, bcrypt.hashSync(req.body.pw, PWKEY), 0])
         console.log("유저 등록 성공")
+        console.log("로그인 페이지로")
+        return "회원가입 성공 - " + req.body.id
         // console.log(rows)
     }
     catch(err){
-        console.log("userModel - dbUserJoin Error");
+        console.log("dbUserSignUp Error - ", err);
         console.log(err)
+        return "dbUserSignUp Error - " + err;
     }
 }
 
 
 
-async function dbUserLogin(req, res) {
+async function dbUserSignIn(req, res) {
     console.log("로그인 시도 - ", req.body.id)
     try{
         const [pw, _] = await db.execute("SELECT pw FROM menu.user WHERE id=?;", [req.body.id])
@@ -61,14 +64,14 @@ async function dbUserLogin(req, res) {
         if(pw[0]["pw"] && bcrypt.compareSync(req.body.pw, pw[0]["pw"])){
             console.log("로그인 성공")
             req.session.user = req.body.id;
-            return res.send("로그인 성공<br>"+req.body.id+"<br>접속 중..");
+            return "로그인 성공<br>"+req.body.id+"<br>접속 중..";
         } else{
             console.log("로그인 실패");
-            return res.send("로그인 실패");
+            return "로그인 실패";
         }
     } catch(err){
-        console.log("err: dbUserLogin - ", err);
-        return res.send("로그인 실패 에러 발생");
+        console.log("dbUserLogin Error - ", err);
+        return "dbUserSignIn Error - " + err;
     }
 }
 
@@ -78,11 +81,11 @@ async function dbUserVerifyEmail(req, res) {
     console.log(req.session.user, "인증 성공 - userModel");
     
     try{
-        const [rows, _] = await db.execute("UPDATE menu.user SET verify=1 WHERE id=?;", [req.session.user]);
+        const [rows, _] = await db.execute("UPDATE menu.user SET email=?, verify=1 WHERE id=?;", [req.body.email, req.session.user]);
     }
     catch(err){
-        console.log("err: dbUserVerifyEmail - ", err);
-        return res.send("로그인 실패 에러 발생");
+        console.log("dbUserVerifyEmail Error - ", err);
+        return "dbUserVerifyEmail Error - ", err;
     }
 }
 
@@ -101,7 +104,10 @@ async function dbUserVerifyEmail(req, res) {
 
 
 
-async function test(params) {
+async function test(req, res) {
+
+    // return res.send("DASDAS")
+
     // const [cnt, ] = await db.execute("SELECT count(id) FROM menu.user WHERE id=?;", ["321"])
     // console.log(cnt)
     // const [cnt, ] = await db.execute("SELECT * FROM menu.user;")
@@ -111,8 +117,8 @@ async function test(params) {
 
 
 module.exports = {
-    dbUserJoin,
-    dbUserLogin,
+    dbUserSignUp,
+    dbUserSignIn,
     dbUserVerifyEmail,
     test
 }
