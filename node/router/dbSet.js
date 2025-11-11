@@ -21,10 +21,10 @@ const formData = [
     {mi: "1341", restSeq: "4", schSysId: "main"},   // 가좌 - 교직원식당
     {mi: "1341", restSeq: "5", schSysId: "main"},   // 가좌 - 중앙식당
     {mi: "1341", restSeq: "63", schSysId: "main"},  // 가좌 - 교육문화1층식당
-    {mi: "1342", restSeq: "6", schSysId: "cdorm"},  // 통영 - 교직원식당
-    {mi: "1342", restSeq: "8", schSysId: "cdorm"},  // 통영 - 학생식당
-    {mi: "1343", restSeq: "7", schSysId: "tdorm"},  // 찰암 - 교직원식당
-    {mi: "1343", restSeq: "9", schSysId: "tdorm"}   // 찰암 - 학생식당
+    {mi: "1342", restSeq: "6", schSysId: "cdorm"},  // 칠암 - 교직원식당
+    {mi: "1342", restSeq: "8", schSysId: "cdorm"},  // 칠암 - 학생식당
+    {mi: "1343", restSeq: "7", schSysId: "tdorm"},  // 통영 - 교직원식당
+    {mi: "1343", restSeq: "9", schSysId: "tdorm"}   // 통영 - 학생식당
 ]
 
 
@@ -165,6 +165,7 @@ async function searchMenu(data){
                                   
                                 menu["menu"] = te
                                 // console.log(te);
+                                // console.log("\n")
                                 if(DB)
                                     menuModel.dbMenuSet(te, data.restSeq, data.mi);
                             }
@@ -187,6 +188,7 @@ async function searchMenu(data){
     // console.log("시작 날짜", date)
 }
 
+searchMenuWithDelay();
 
 
 cron.schedule("0 0 20 * * 5", () => {	// 매주 금요일 20시 00분 00초에 실행
@@ -203,12 +205,15 @@ cron.schedule("0 0 20 * * 5", () => {	// 매주 금요일 20시 00분 00초에 �
     timezone: "Asia/Seoul"
 })
 
-// searchMenuWithDelay();
+
+// 9
+// searchMenu(formData[6])
+
+// 8
 // searchMenu(formData[4])
 
-// searchMenu(formData[3])
-
-
+// 63
+// searchMenu(formData[2])
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 // 딜레이를 줘서 과부하 방지

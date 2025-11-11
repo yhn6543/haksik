@@ -7,18 +7,48 @@ const { app } = require("../router/server")
 const db = dbConnect();
 // console.log("db연결 성공");
 
+// let date = "2025-11-01"
+// const t = new Date()
+// t.setHours(27)
+// t.setHours(t.getHours()+9)
+// t.setHours(9)
+// console.log(t)
+// let text = "후식"
+// if(LUNCH.includes("후식")){
+//     console.log("####")
+// }
 
-
+const BREAKFAST = ["천원의 아침밥", "조식", "아침"];
+const LUNCH = ["점심", "중식", "주식", "국류", "국", "찬류", "후식", "더진국", "고정메뉴"];
+const DINNER = ["저녁", "석식"];
 
 async function dbMealSet(meal, restSeq, mi, text) {
-    // console.log(meal);
-    // console.log("\n\n");
+    const newDate = new Date(meal.date)
+    console.log(meal, text)
+    if(BREAKFAST.some(w => text.includes(w))){
+        newDate.setHours(9)
+        console.log("=======아침")
+    }
+    else if(LUNCH.some(w => text.includes(w))){
+        newDate.setHours(12)
+        console.log("=======점심")
+    }
+    else if(DINNER.some(w => text.includes(w))){
+        newDate.setHours(17)
+        console.log("=======저녁")
+    }
     
-    const [cnt, _] = await db.execute("SELECT COUNT(*) FROM menu.meal WHERE date=? and menu=? and restSeq=?", [meal.date, meal.menu, restSeq]);
+    // console.log(newDate)
+    // console.log(meal, text, newDate);
+    console.log("\n");
+    // console.log()
+    const [cnt, _] = await db.execute("SELECT COUNT(*) FROM menu.meal WHERE date=? and menu=? and restSeq=?", [newDate, meal.menu, restSeq]);
     // console.log(cnt[0]['COUNT(*)'])
     if(cnt[0]['COUNT(*)'] == 0){
         // console.log("중복없음")
-        const [] = await db.execute("INSERT INTO menu.meal (date, opt, menu, restSeq, mi, type) VALUES (?, ?, ?, ?, ?, ?);", [meal.date, meal.opt ?? "", meal.menu, restSeq, mi, text]);
+        console.log(meal, text, newDate);
+        // console.log("\n\n");
+        const [] = await db.execute("INSERT INTO menu.meal (date, opt, menu, restSeq, mi, type) VALUES (?, ?, ?, ?, ?, ?);", [newDate, meal.opt ?? "", meal.menu, restSeq, mi, text]);
     }
     else{
         // console.log("중복")
@@ -30,11 +60,11 @@ async function dbMealSet(meal, restSeq, mi, text) {
 
 
 async function dbMenuSet(menu, restSeq, mi) {
-    const TEXT = "천원의 아침밥 사업 시행에"
-    if(menu == "라면/김밥" || menu.includes(TEXT)) return;
-
+    if(menu == "라면/김밥" || menu.includes("천원의 아침밥 사업 시행에 따라")) return;
+    
     menu = menu.replace(/\(세트메뉴\)/g, "")
                 .replace(/\(천원의 아침밥\)/g, "")
+                .replace("(4,500원)", "").replace("(5,000원)", "")
                 // .replace(/(\r\n|\n|\r)/gm, " ")
                 .replace("포기김치/", "").replace("깍두기/", "").replace("배추김치/", "")
                 .replace(/\+/g, "\n")
@@ -49,7 +79,7 @@ async function dbMenuSet(menu, restSeq, mi) {
     for(m of menu){
         try{
             const [] = await db.execute("INSERT INTO menu.menu (name, restSeq, mi) VALUES (?, ?, ?);", [m, restSeq, mi]);
-            console.log(m, "삽입");
+            // console.log(m, "삽입");
         }
         catch(err){
             // console.log("Error - ", err);
@@ -59,16 +89,27 @@ async function dbMenuSet(menu, restSeq, mi) {
 
 
 
+// const ds = "천원의 아침밥 7:50~9:00 조식 09:00 ~"
+// console.log(BREAKFAST.includes(ds))
+// console.log(ds.includes("천원의 아침밥"))
 
 
+async function dbGetMeal(mi, restSeq) {
+   try{
+        let  [meal, _] = await db.execute("SELECT * FROM menu.meal WHERE mi=? and restSeq=? ORDER BY type ASC, opt DESC, date ASC;", [mi, restSeq]);
+        console.log(meal)
+        meal = meal.map(m => {
+            const newDate = new Date(m['date']);
+            newDate.setHours(newDate.getHours()+9)
+            console.log(m['date'], " -> ", newDate.toISOString())
+            return{
+                ...m,
+                date: newDate.toISOString().replace("T", " ").slice(0, 19)
+            }
 
-async function dbGetMeal(mi) {
-    try{
-        let  [meal, _] = await db.execute("SELECT type, opt, menu, mi, restSeq, date FROM menu.meal WHERE mi=?;", [mi]);
-        meal = meal.map(m => ({
-            ...m,
-            date: m['date'].toISOString().slice(0, 10)
-        }))
+        })
+        // console.log(meal)
+        // console.log("\n\n\n")
         return meal;
     }
     catch(err){
@@ -78,7 +119,9 @@ async function dbGetMeal(mi) {
 }
 
 
-
+const t = new Date("2025-11-14T:12:00.000Z");
+// t.setHours(22)
+console.log(t.toLocaleString('sv-SE'))
 
 
 
