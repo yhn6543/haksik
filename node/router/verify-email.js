@@ -23,11 +23,17 @@ const transporter = nodemailer.createTransport({
 
 // 이메일 인증 페이지 렌더
 router.get('/', (req, res) => {
-    if(req.session.user) res.render('verify-email');
-    else res.render("login")
+    if(!req.session.user){
+        console.log("로그인 안함")
+        return res.render('signIn');
+    }
+    else if(req.session.email){
+        console.log("이미 인증함")
+        return res.send("이미 인증했음");
+    }
+
+    return res.render("verify-email");
 })
-
-
 
 
 
@@ -44,6 +50,14 @@ const verificationCodes = {};
 router.post('/send-verification', async (req, res) => {
     console.log("이메일 인증 요청받음\n", req.body);
     const { email } = req.body;
+    
+    // 이메일 중복 확인
+    const cnt = await userModel.dbUserEmailCheck(email);
+    console.log(cnt)
+    if(cnt > 0){
+        return res.send("이메일 중복")
+    }
+    console.log("중복 없음")
     
     try {
         // 6자리 인증 코드 생성

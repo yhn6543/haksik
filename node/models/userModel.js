@@ -25,14 +25,13 @@ async function dbUserSignUp(req, res) {
             // console.log("cnt = ", cnt[0]["count(id)"]);
             return cnt[0]["count(id)"];
         } catch(err){
-            console.log("에러발생 - ", err)
+            console.log("dbUserSignUp Error - ", err)
             return "dbUserSignUp Error - " + err
         }
     })();
 
     if(unique > 0){
-        console.log("아이디 중복으로 return")
-        return "아이디 중복으로 return"
+        return "아이디 중복"
     }
 
 
@@ -59,11 +58,12 @@ async function dbUserSignUp(req, res) {
 async function dbUserSignIn(req, res) {
     console.log("로그인 시도 - ", req.body.id)
     try{
-        const [pw, _] = await db.execute("SELECT pw FROM menu.user WHERE id=?;", [req.body.id])
+        const [pw, _] = await db.execute("SELECT pw, email FROM menu.user WHERE id=?;", [req.body.id])
         
         if(pw[0]["pw"] && bcrypt.compareSync(req.body.pw, pw[0]["pw"])){
             console.log("로그인 성공")
             req.session.user = req.body.id;
+            req.session.email = pw[0]["email"];
             return "로그인 성공<br>"+req.body.id+"<br>접속 중..";
         } else{
             console.log("로그인 실패");
@@ -91,7 +91,17 @@ async function dbUserVerifyEmail(req, res) {
 
 
 
-
+async function dbUserEmailCheck(email) {
+    try{
+        const [cnt, _] = await db.execute("SELECT COUNT(*) FROM user WHERE email=?;", [email])
+        const res = cnt[0]['COUNT(*)'];
+        return res
+    }
+    catch(err){
+        console.log("dbUserEmailCheck Error - ", err);
+        return;
+    }
+}
 
 
 
@@ -120,5 +130,6 @@ module.exports = {
     dbUserSignUp,
     dbUserSignIn,
     dbUserVerifyEmail,
+    dbUserEmailCheck,
     test
 }

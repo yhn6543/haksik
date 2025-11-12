@@ -95,22 +95,48 @@ async function dbMenuSet(menu, restSeq, mi) {
 
 
 async function dbGetMeal(mi, restSeq) {
+    const breakfast = []
+    const lunch = []
+    const dinner = []
    try{
-        let  [meal, _] = await db.execute("SELECT * FROM menu.meal WHERE mi=? and restSeq=? ORDER BY type ASC, opt DESC, date ASC;", [mi, restSeq]);
-        console.log(meal)
+        let  [meal, _] = await db.execute("SELECT type, opt, menu, date FROM menu.meal WHERE mi=? and restSeq=? ORDER BY type ASC, opt DESC, date ASC;", [mi, restSeq]);
+        // console.log(meal)
         meal = meal.map(m => {
             const newDate = new Date(m['date']);
             newDate.setHours(newDate.getHours()+9)
-            console.log(m['date'], " -> ", newDate.toISOString())
-            return{
-                ...m,
-                date: newDate.toISOString().replace("T", " ").slice(0, 19)
+            // console.log(m, m['date'].getHours())
+            // console.log("\n\n")
+            
+            if(m['date'].getHours() == 9){
+                m['date'].setHours(m['date'].getHours()+9)
+                m['date'] = m['date'].toISOString().replace("T", " ").slice(0, 19)
+                breakfast.push(m)
+                // console.log(m['date']);
             }
-
+            else if(m['date'].getHours() == 12){
+                m['date'].setHours(m['date'].getHours()+9)
+                m['date'] = m['date'].toISOString().replace("T", " ").slice(0, 19)
+                lunch.push(m)
+            }
+            else if(m['date'].getHours() == 17){
+                m['date'].setHours(m['date'].getHours()+9)
+                m['date'] = m['date'].toISOString().replace("T", " ").slice(0, 19)
+                dinner.push(m)
+            }
+            else{
+                console.log(m)
+            }
+            // console.log(m['date'], " -> ", newDate.toISOString())
+            // return{
+            //     ...m,
+            //     date: newDate.toISOString().replace("T", " ").slice(0, 19)
+            // }
+            
         })
         // console.log(meal)
         // console.log("\n\n\n")
-        return meal;
+        // return meal;
+        return { breakfast, lunch, dinner };
     }
     catch(err){
         console.log("dbGetMeal Error - ", err)
@@ -119,9 +145,9 @@ async function dbGetMeal(mi, restSeq) {
 }
 
 
-const t = new Date("2025-11-14T:12:00.000Z");
-// t.setHours(22)
-console.log(t.toLocaleString('sv-SE'))
+// const t = new Date("2025-11-14T:12:00.000Z");
+// // t.setHours(22)
+// console.log(t.toLocaleString('sv-SE'))
 
 
 

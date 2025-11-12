@@ -32,13 +32,15 @@ userModel.test()
 
 router.get('/signIn', (req,res)=>{
     console.log("/signIn")
-    if (req.session?.username) res.redirect('/');
-    else res.render('signIn');
+    if (req.session.user) return res.redirect('/');
+
+    return res.render('signIn');
 })
 
 router.post('/signIn', async (req,res)=>{
     const result = await userModel.dbUserSignIn(req, res);
     // console.log(result)
+    // console.log(req.session)
     return res.send(result);
 })
 
@@ -50,6 +52,8 @@ router.post('/signIn', async (req,res)=>{
 
 
 router.get('/signUp', (req, res)=>{
+    if (req.session.user) return res.redirect('/');
+
     return res.render('signUp');
 })
 

@@ -188,7 +188,7 @@ async function searchMenu(data){
     // console.log("시작 날짜", date)
 }
 
-searchMenuWithDelay();
+// searchMenuWithDelay();
 
 
 cron.schedule("0 0 20 * * 5", () => {	// 매주 금요일 20시 00분 00초에 실행
