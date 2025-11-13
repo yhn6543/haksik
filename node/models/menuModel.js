@@ -5,18 +5,6 @@ console.log("===== menuModel =====");
 
 const { app } = require("../router/server")
 const db = dbConnect();
-// console.log("db연결 성공");
-
-// let date = "2025-11-01"
-// const t = new Date()
-// t.setHours(27)
-// t.setHours(t.getHours()+9)
-// t.setHours(9)
-// console.log(t)
-// let text = "후식"
-// if(LUNCH.includes("후식")){
-//     console.log("####")
-// }
 
 const BREAKFAST = ["천원의 아침밥", "조식", "아침"];
 const LUNCH = ["점심", "중식", "주식", "국류", "국", "찬류", "후식", "더진국", "고정메뉴"];
@@ -88,12 +76,6 @@ async function dbMenuSet(menu, restSeq, mi) {
 }
 
 
-
-// const ds = "천원의 아침밥 7:50~9:00 조식 09:00 ~"
-// console.log(BREAKFAST.includes(ds))
-// console.log(ds.includes("천원의 아침밥"))
-
-
 async function dbGetMeal(mi, restSeq) {
     const breakfast = []
     const lunch = []
@@ -104,8 +86,6 @@ async function dbGetMeal(mi, restSeq) {
         meal = meal.map(m => {
             const newDate = new Date(m['date']);
             newDate.setHours(newDate.getHours()+9)
-            // console.log(m, m['date'].getHours())
-            // console.log("\n\n")
             
             if(m['date'].getHours() == 9){
                 m['date'].setHours(m['date'].getHours()+9)
@@ -126,11 +106,6 @@ async function dbGetMeal(mi, restSeq) {
             else{
                 console.log(m)
             }
-            // console.log(m['date'], " -> ", newDate.toISOString())
-            // return{
-            //     ...m,
-            //     date: newDate.toISOString().replace("T", " ").slice(0, 19)
-            // }
             
         })
         // console.log(meal)
@@ -144,10 +119,6 @@ async function dbGetMeal(mi, restSeq) {
     }
 }
 
-
-// const t = new Date("2025-11-14T:12:00.000Z");
-// // t.setHours(22)
-// console.log(t.toLocaleString('sv-SE'))
 
 
 

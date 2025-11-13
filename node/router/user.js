@@ -41,7 +41,11 @@ router.post('/signIn', async (req,res)=>{
     const result = await userModel.dbUserSignIn(req, res);
     // console.log(result)
     // console.log(req.session)
-    return res.send(result);
+    return res.send(result + `<br>
+        <form action="/" method="get">
+        <button type="submit">메인화면으로</button>
+        </form>
+        `);
 })
 
 

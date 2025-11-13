@@ -142,6 +142,7 @@ router.post('/verify-code', (req, res) => {
     
     // 인증 성공
     userModel.dbUserVerifyEmail(req, res);  //db에 유저 인증 상태 변경
+    req.session.email = email;
     delete verificationCodes[email];
     res.json({ 
         success: true, 

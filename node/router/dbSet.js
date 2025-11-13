@@ -71,9 +71,6 @@ async function searchMenu(data){
 
     
     const $ = cheerio.load(submitResponse.data);
-    const menuTableRows = $('.tbl_list tbody tr');
-
-
     const tr = $("#detailForm tbody tr")
 
     // console.log("\n" + "--------------------------------------------------------" + "\n")
@@ -225,16 +222,13 @@ async function searchMenuWithDelay() {
         }
     }
     catch(err){
-        console.log("err: searchMenuWithDelay - ", err);
+        console.log("searchMenuWithDelay Error - ", err);
     }
 }
 
-// searchMenuWithDelay()
 
 
 
-
-
-console.log("db_set.js");
+// console.log("db_set.js");
 
 module.exports = router;

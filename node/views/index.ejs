@@ -9,11 +9,40 @@
     <h1>메인</h1>
     
     <form action="/main/ad/fm/foodmenu/selectFoodMenuView.do?mi=1341" method="post"></form>
-    
-    <form action="/menu" method="post">
-        <button type="submit">ddd</button>
-    </form>
+    <% if(user){ %>
+        <h1>로그인 중 - <%= user %></h1>
+        <h2>이메일 - <%= email %></h2>
+        <% if(!email){ %>
+            <form action="/user/verify-email" method="get">
+                <button type="submit">이메일인증</button>
+            </form>
+        <% } %>
+    <% } else { %>
 
+        <form action="/user/signIn" method="get">
+            <button type="submit">로그인</button>
+        </form>
+        <form action="/user/signUp" method="get">
+            <button type="submit">회원가입</button>
+        </form>
+    <% } %>
+    
+    <br>
+    <div class="menu">
+        <form action="/menu" method="get">
+            <select name="restSeq" id="restSeq">
+                <option value="5" mi="5" restSeq="1341">가좌-중앙</option>
+                <option value="63" mi="63" restSeq="1341">가좌-교육문화</option>
+                <option value="4" mi="4" restSeq="1341">가좌-교직원</option>
+                <option value="8" mi="8" restSeq="1342">칠암-학생</option>
+                <option value="6" mi="6" restSeq="1342">칠암-교직원</option>
+                <option value="9" mi="9" restSeq="1343">통영-학생</option>
+                <option value="7" mi="7" restSeq="1343">통영-교직원</option>
+            </select>
+
+            <button type="submit">메뉴보기</button>
+        </form>
+    </div>
 
 </body>
 </html>

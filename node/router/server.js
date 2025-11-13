@@ -3,7 +3,7 @@ const router = express.Router();
 const mysql = require("mysql2/promise")
 
 const app = express();
-const PORT = 80;
+const PORT = process.env.PORT || 3000;
 let db;
 
 app.use(express.urlencoded({ extended: true }));
@@ -13,7 +13,7 @@ app.set("views", "./views");
 
 app.listen(PORT, async () => {
     
-    console.log("<<<<< port: 80, server running >>>>>");
+    console.log("<<<<< port:", PORT, ",server running >>>>>");
 })
 
 function dbConnect() {
