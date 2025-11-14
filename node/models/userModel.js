@@ -1,32 +1,33 @@
 const bcrypt = require('bcrypt');
 
-const { dbConnect } = require("../router/server")
+// const { dbConnect } = require("../router/server")
+// const db = dbConnect();
+const { db } = require("../router/server")
 
 console.log("===== userModel =====");
 
 
 const { app } = require("../router/server")
-const db = dbConnect();
 
 
-const PWKEY = 10;
+const PW_KEY = 10;
 
 
-async function dbUserSignUp(req, res) {
+async function dbUserSignUp(req) {
     console.log("joinQueryData----------")
     console.log(req.body);
     console.log("-----------------------")
 
 
     const unique = await (async function () {
-        // console.log(joinQueryData)
         try{
-            const [cnt, _] = await db.execute("SELECT count(id) FROM menu.user WHERE id=?;", [req.body.id])
-            // console.log("cnt = ", cnt[0]["count(id)"]);
-            return cnt[0]["count(id)"];
+            const result = await db.query("SELECT count(id) FROM haksik_db.user WHERE id=$1;", [req.body.id])
+            const cnt = result.rows[0]["count"]
+            // console.log("cnt = ", cnt);
+            return cnt;
         } catch(err){
-            console.log("dbUserSignUp Error - ", err)
-            return "dbUserSignUp Error - " + err
+            console.log("dbUserSignUp > unique Error - ", err)
+            return "dbUserSignUp > unique Error - " + err
         }
     })();
 
@@ -36,11 +37,11 @@ async function dbUserSignUp(req, res) {
 
 
     console.log("중복되지 않음")
-    console.log("비밀번호 - ", bcrypt.hashSync(req.body.pw, PWKEY));
+    console.log("비밀번호 - ", bcrypt.hashSync(req.body.pw, PW_KEY));
 
     try{
-        const [rows, fields] = await db.execute("INSERT INTO `menu`.`user` (`id`, `pw`, `verify`, `date`) VALUES (?, ?, ?, NOW());", 
-            [req.body.id, bcrypt.hashSync(req.body.pw, PWKEY), 0])
+        const result = await db.query("INSERT INTO haksik_db.user (id, pw, verify, date) VALUES ($1, $2, $3, NOW());", 
+            [req.body.id, bcrypt.hashSync(req.body.pw, PW_KEY), 0])
         console.log("유저 등록 성공")
         console.log("로그인 페이지로")
         return "회원가입 성공 - " + req.body.id
@@ -55,15 +56,24 @@ async function dbUserSignUp(req, res) {
 
 
 
-async function dbUserSignIn(req, res) {
+async function dbUserSignIn(req) {
     console.log("로그인 시도 - ", req.body.id)
+
     try{
-        const [pw, _] = await db.execute("SELECT pw, email FROM menu.user WHERE id=?;", [req.body.id])
+        const result = await db.query("SELECT pw, email FROM haksik_db.user WHERE id=$1;", [req.body.id])
+        if(!result.rows[0]){
+            return "없는 아이디"
+        }
+
+        const pw = result.rows[0]["pw"]
+        const email = result.rows[0]["email"]
+        // console.log(pw, email)
         
-        if(pw[0]["pw"] && bcrypt.compareSync(req.body.pw, pw[0]["pw"])){
+
+        if(pw && bcrypt.compareSync(req.body.pw, pw)){
             console.log("로그인 성공")
             req.session.user = req.body.id;
-            req.session.email = pw[0]["email"];
+            req.session.email = email;
             return "로그인 성공<br>"+req.body.id+"<br>접속 중..";
         } else{
             console.log("로그인 실패");
@@ -81,7 +91,7 @@ async function dbUserVerifyEmail(req, res) {
     console.log(req.session.user, "인증 성공 - userModel");
     
     try{
-        const [rows, _] = await db.execute("UPDATE menu.user SET email=?, verify=1 WHERE id=?;", [req.body.email, req.session.user]);
+        const result = await db.query("UPDATE haksik_db.user SET email=$1, verify=1 WHERE id=$2;", [req.body.email, req.session.user]);
     }
     catch(err){
         console.log("dbUserVerifyEmail Error - ", err);
@@ -93,9 +103,9 @@ async function dbUserVerifyEmail(req, res) {
 
 async function dbUserEmailCheck(email) {
     try{
-        const [cnt, _] = await db.execute("SELECT COUNT(*) FROM user WHERE email=?;", [email])
-        const res = cnt[0]['COUNT(*)'];
-        return res
+        const result = await db.query("SELECT COUNT(*) FROM haksik_db.user WHERE email=$1;", [email])
+        const cnt = result.rows[0]['count'];
+        return cnt
     }
     catch(err){
         console.log("dbUserEmailCheck Error - ", err);

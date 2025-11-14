@@ -1,24 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const axios = require("axios");
-const cheerio = require("cheerio");
-const cron = require("node-cron");
 
 const { app } = require("./server")
 app.use("/menu", router)
 
-const menuModel = require("../models/menuModel");
+const menuModel = require("../models/menuModel"); // menu테이블과 상호작용할 model 연결
+const cronJobRequire = require("../jobs/cronDB"); // 자동으로 DB에 메뉴 등록
 
 router.get("/", async(req, res) => {
-    console.log(req.query);
-    let restSeq = req.query.restSeq;
-    let mi;
-
-    if(restSeq == "4" || restSeq == "5" || restSeq == "63") mi = "1341";
-    else if(restSeq == "6" || restSeq == "8") mi = "1342";
-    else if(restSeq == "7" || restSeq == "9") mi = "1343";
-
-    const meal = await menuModel.dbGetMeal(mi, restSeq)
+    const meal = await menuModel.dbGetMeal(req.query.restSeq)
     return res.send(meal)
 })
 

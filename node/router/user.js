@@ -2,10 +2,6 @@ const express = require('express');
 const router = express.Router();
 const session = require("express-session")
 
-
-// const mysql = require("mysql2");
-// const bcrypt = require('bcrypt');
-
 const { app } = require("./server")
 app.use(session({
     secret: "Key",
@@ -22,25 +18,20 @@ const verifyEmail = require("./verify-email")
 router.use("/verify-email", verifyEmail)
 
 
-
-
 const userModel = require("../models/userModel")
-userModel.test()
 
 
 
 
 router.get('/signIn', (req,res)=>{
-    console.log("/signIn")
     if (req.session.user) return res.redirect('/');
 
     return res.render('signIn');
 })
 
 router.post('/signIn', async (req,res)=>{
-    const result = await userModel.dbUserSignIn(req, res);
-    // console.log(result)
-    // console.log(req.session)
+    const result = await userModel.dbUserSignIn(req);
+
     return res.send(result + `<br>
         <form action="/" method="get">
         <button type="submit">메인화면으로</button>
@@ -62,9 +53,9 @@ router.get('/signUp', (req, res)=>{
 })
 
 router.post('/signUp', async (req, res) => {
-    const result = await userModel.dbUserSignUp(req, res);
-    console.log(result)
-    return res.send(result)
+    const result = await userModel.dbUserSignUp(req);
+
+    return res.send(result);
 })
 
 
@@ -74,8 +65,9 @@ router.post('/signUp', async (req, res) => {
 
 
 router.get('/signOut', (req, res) => {
-    delete req.session.user
-    res.redirect('/')
+    delete req.session.user;
+
+    res.redirect('/');
 })
 
 

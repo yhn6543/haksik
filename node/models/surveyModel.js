@@ -1,10 +1,11 @@
-const { dbConnect } = require("../router/server")
+// const { dbConnect } = require("../router/server")
+// const db = dbConnect();
+const { db } = require("../router/server")
 
 console.log("===== surveyModel =====");
 
 
 const { app } = require("../router/server")
-const db = dbConnect();
 
 async function dbSurveyPost(req) {
     

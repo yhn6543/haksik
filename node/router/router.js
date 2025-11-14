@@ -17,10 +17,8 @@ app.get("/", (req, res) => {
 router.use("/server", serverRouter);
 // 유저 관리
 router.use('/user', userRouter);
-// 클라이언트에 메뉴 전송
+// 메뉴
 router.use('/menu', menuRouter);
-// 데이터베이스에 식단 등록
-router.use('/db-set', dbSetRouter);
 // 평점
 router.use('/survey', surveyRouter);
 
